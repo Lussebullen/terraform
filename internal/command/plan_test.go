@@ -733,6 +733,61 @@ func TestPlan_vars(t *testing.T) {
 	}
 }
 
+// test sensisitvve
+
+func TestPlan_varsSensitive(t *testing.T) {
+	// Create a temporary working directory that is empty
+	td := t.TempDir()
+	testCopyDir(t, testFixturePath("plan-sensitive"), td)
+	defer testChdir(t, td)()
+
+	p := planVarsFixtureProvider()
+	view, done := testView(t)
+	c := &PlanCommand{
+		Meta: Meta{
+			testingOverrides: metaOverridesForProvider(p),
+			View:             view,
+		},
+	}
+
+	//actual := ""
+	//p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) (resp providers.PlanResourceChangeResponse) {
+	//	actual = req.ProposedNewState.GetAttr("value").AsString()
+	//	resp.PlannedState = req.ProposedNewState
+	//	return
+	//}
+
+	args := []string{
+		"-var-file", "sensitiveVar.tfvars",
+	}
+	code := c.Run(args)
+	output := done(t)
+
+	// NEW ADDITION
+
+	if code != 0 {
+		t.Errorf("expected status code 0 but got %d", code)
+	}
+
+	expected := `        ╷
+        │ Error: Missing key/value separator
+        │ 
+        │   on sensitiveVar.tfvars line 3:
+        │    1: secretConfig = { "something" = "extremely confidential",
+        │    2:                 "key" = "val",
+        │    3:                 "oops" }
+        │ 
+        │ Expected an equals sign ("=") to mark the beginning of the attribute value.
+        ╵
+`
+
+	actual := output.All()
+
+	if !strings.Contains(actual, expected) {
+		t.Errorf("output didn't match expected:\nexpected:\n%s\nactual:\n%s\n", expected, actual)
+	}
+}
+
 func TestPlan_varsInvalid(t *testing.T) {
 	testCases := []struct {
 		args    []string
