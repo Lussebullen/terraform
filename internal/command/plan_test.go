@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/google/go-cmp/cmp"
 	"io/ioutil"
 	"os"
 	"path"
@@ -750,13 +751,6 @@ func TestPlan_varsSensitive(t *testing.T) {
 		},
 	}
 
-	//actual := ""
-	//p.PlanResourceChangeFn = func(req providers.PlanResourceChangeRequest) (resp providers.PlanResourceChangeResponse) {
-	//	actual = req.ProposedNewState.GetAttr("value").AsString()
-	//	resp.PlannedState = req.ProposedNewState
-	//	return
-	//}
-
 	args := []string{
 		"-var-file", "sensitiveVar.tfvars",
 	}
@@ -769,22 +763,20 @@ func TestPlan_varsSensitive(t *testing.T) {
 		t.Errorf("expected status code 0 but got %d", code)
 	}
 
-	expected := `        ╷
-        │ Error: Missing key/value separator
-        │ 
-        │   on sensitiveVar.tfvars line 3:
-        │    1: secretConfig = { "something" = "extremely confidential",
-        │    2:                 "key" = "val",
-        │    3:                 "oops" }
-        │ 
-        │ Expected an equals sign ("=") to mark the beginning of the attribute value.
-        ╵
+	expected := `[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mMissing key/value separator[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  on sensitiveVar.tfvars line 3:
+[31m│[0m [0m   (SENSITIVE)
+[31m│[0m [0m
+[31m│[0m [0mExpected an equals sign ("=") to mark the beginning of the attribute value.
+[31m╵[0m[0m
 `
 
 	actual := output.All()
 
-	if !strings.Contains(actual, expected) {
-		t.Errorf("output didn't match expected:\nexpected:\n%s\nactual:\n%s\n", expected, actual)
+	if diff := cmp.Diff(actual, expected); len(diff) > 0 {
+		t.Errorf("output didn't match expected:\nexpected:\n%s\nactual:\n%s\ndiff:\n%s", expected, actual, diff)
 	}
 }
 
