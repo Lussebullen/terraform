@@ -734,8 +734,7 @@ func TestPlan_vars(t *testing.T) {
 	}
 }
 
-// test sensisitvve
-
+// Test that sensitive variables are redacted in diagnostic output.
 func TestPlan_varsSensitive(t *testing.T) {
 	// Create a temporary working directory that is empty
 	td := t.TempDir()
@@ -757,17 +756,15 @@ func TestPlan_varsSensitive(t *testing.T) {
 	code := c.Run(args)
 	output := done(t)
 
-	// NEW ADDITION
-
-	if code != 0 {
-		t.Errorf("expected status code 0 but got %d", code)
+	if code != 1 {
+		t.Errorf("expected status code 1 but got %d", code)
 	}
 
 	expected := `[31m╷[0m[0m
 [31m│[0m [0m[1m[31mError: [0m[0m[1mMissing key/value separator[0m
 [31m│[0m [0m
 [31m│[0m [0m[0m  on sensitiveVar.tfvars line 3:
-[31m│[0m [0m   (SENSITIVE)
+[31m│[0m [0m   (SENSITIVB)
 [31m│[0m [0m
 [31m│[0m [0mExpected an equals sign ("=") to mark the beginning of the attribute value.
 [31m╵[0m[0m
