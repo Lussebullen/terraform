@@ -306,7 +306,13 @@ Optional (point 1): Architectural overview.
 The root of the problem starts in the function `addVarsFromFile` in file `meta_vars.go`. It's purpose is to parse and load the variables from the `.tf` and `.tfvars` files. The object `loader` a pointer to type `configload.Loader` is a config loader with methods to parse
 the the the variables with `loader.Parser().ForceFileSource(filename, src)`. This method parses all relevant files inside the working directory and loads them to the `loader` object in a structured manner, such as file name and file contents and other variables. Afer this is done a pointer variable `f` of type `hcl.File` and `diags` of type `tfdiags.Diagnostic` is declared. `f` contains the structured content of the file that has been parsed while diags is an array of potential diagnostics. These two variables will be given the respective values of the function call `hclsyntax.ParseConfig(src, filename, hcl.Pos{Line: 1, Column: 1})`, which will return two values, one for `f` and one for `diags`. If the parsed file contains any errors it will be listed in `diags` and that is where only the location in the file of the variables is set and the `diags` is also what gets returned from this function `addVarsFromFile`. This function is getting is getting called by `collectVariableValues` that is in turn called by `GatherVariables` which both are in `plan.go` which. And what we get back from the function is `diags` and if the `diags` array is not empty it calls a `view.Diagnostics(diags)` which is in `views.go` and prints the error. It does not take the sensitive variable in account at all and just prints out the content between the start and end locations of the content in the file. 
 
-![overview](extractVariable.png)
+See the below image for an overview of how to set the sensitive label for later redacting.
+
+![SetSensitiveLabel](extractVariable.png)
+
+After setting the sensitive label in diags, we need to ensure that these diags are redacted when output. See the below image for an overview of how this should be done.
+
+![RedactSensitiveInfo](redactVariable.png)
 
 ## Overall experience
 
