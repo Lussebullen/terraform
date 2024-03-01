@@ -303,21 +303,23 @@ To see test logs, check relevant folder in Google Drive.
 
 Optional (point 1): Architectural overview.
 
-
-
 The root of the problem starts in the function `addVarsFromFile` in file `meta_vars.go`. It's purpose is to parse and load the variables from the `.tf` and `.tfvars` files. The object `loader` a pointer to type `configload.Loader` is a config loader with methods to parse
-the the the variables with `loader.Parser().ForceFileSource(filename, src)`. This method parses all relevant files inside the working directory and loads them to the `loader` object. Afer this is done a pointer variable `f` of type `hcl.File` and `diags` of type `tfdiags.Diagnostic` is declared. `f` contains the structured content fo the file that has been parsed while diags is an array of potential diagnostics. These two variableswill be given the respective values of the function call `hclsyntax.ParseConfig(src, filename, hcl.Pos{Line: 1, Column: 1})`, which will return two values, one for `f` and one for `diags`. If the parsed file contains any errors it will be listed in `diags` and that is where only the location in the file of the variables is set and the `diags` is also what gets returned from this function `addVarsFromFile`. This function is getting is getting called by `collectVariableValues` that is in turn called by `GatherVariables` which both are in `plan.go` that
-Optional (point 2): relation to design pattern(s).
+the the the variables with `loader.Parser().ForceFileSource(filename, src)`. This method parses all relevant files inside the working directory and loads them to the `loader` object in a structured manner, such as file name and file contents and other variables. Afer this is done a pointer variable `f` of type `hcl.File` and `diags` of type `tfdiags.Diagnostic` is declared. `f` contains the structured content of the file that has been parsed while diags is an array of potential diagnostics. These two variables will be given the respective values of the function call `hclsyntax.ParseConfig(src, filename, hcl.Pos{Line: 1, Column: 1})`, which will return two values, one for `f` and one for `diags`. If the parsed file contains any errors it will be listed in `diags` and that is where only the location in the file of the variables is set and the `diags` is also what gets returned from this function `addVarsFromFile`. This function is getting is getting called by `collectVariableValues` that is in turn called by `GatherVariables` which both are in `plan.go` which. And what we get back from the function is `diags` and if the `diags` array is not empty it calls a `view.Diagnostics(diags)` which is in `views.go` and prints the error. It does not take the sensitive variable in account at all and just prints out the content between the start and end locations of the content in the file. 
 
-![General Overview](extractVariable.png)
+![overview](extractVariable.png)
 
 ## Overall experience
 
 What are your main take-aways from this project? What did you learn?
 
 Our main take-away is that solving issues and developing features on a large project such as Terraform is very difficult.
-We discussed ahave a greater understanding why comp
-velopers that How did you grow as a team, using the Essence standard to evaluate yourself?
+We discussed in the group, and we now have a greater understanding why companies sometimes are desparate to keep their senior developers. It took us a long time to understand just a small part of the code, and we did not succeed in solving the issue. For a developer with a greater knowledge of the codebase it might be solveable, and in shorter time. After a week of work from five people it was still not clear how we should solve the issue. This explains why companies value their experienced developers so highly.
+
+Additionally, getting someone versed in the codebase is very difficult and time consuming. When a new hire or consultant is expected to understand the code, it must take a long time for them to understand it sufficiently. It is interesting that this is still something companies expect and are OK with, even though it might be a whole month or more of just trying to understand what the code is doing and how its structured.
+
+Sometimes we found it interesting that some project have hundreds of issues. After attempting to solve one, we understand why some seemingly easy issues are left for a long while with no-one touching them. This explains the buildup.
+
+We also understood how important documentation is. Docker had better documentation that Terraform, and while Terraform was not lacking in documentation completely, it was not sufficient for us to easily understand the codebase enough to solve the issue. Additionally, Terraform has dedicated documentation contributors, and it was still lacking at times. Perhaps it is very difficult to expect such a large project to have great documentation. 
 
 ## Essence Analysis (Team)
 When doing the essence team analysis in earlier assignments, the team positioned itself somewhere between performing and collaborating. The requirement that we did not achieve was the `Wasted work and the potential for wasted work are continuously identified and eliminated`. Due to the ever-changing nature of the assignments, all our efforts were put into solving the issue at hand and little to no time was given to reflect upon the finished work. 
