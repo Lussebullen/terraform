@@ -122,6 +122,20 @@ To show that there is an issue, tests should be able to be created, and should b
 Title: Follow project instructions regarding code and contributions
 Since Terraform is a large project with many contributors, there are established standards for code writing and testing. To ensure maximum readability of the code as well as the health of the project in the long run, these standards are enforced. In order to contribute to a solution, a requirement of the contribution is thus to follow those standards.
 
+## Plan for testing
+For the requirement “Sensitive information” we implement a test that contains a sensitive variable, which has a syntax error. If the sensitive information is displayed in the error, the requirement is tested. The test compares the string output that we receive when running the test with our own correctly stated string. Since the check for the formatting where the issue can occur occurs when the “plan” or “apply” command is used, we incorporate the tests into the codebase where those commands are tested (internal/command/plan_test.go).
+
+For the requirement “Functionality” we ensure that no tests that passed before our change fail after our change. This ensures that the functionality of the project at large is not affected in a negative way by our change.
+
+For the requirement “Simplicity” we take care to not increase the complexity of the solution in an unnecessary way. This includes when adding tests: the tests should not be overly complicated to run. This ensures the readability of the code and tests and is good for the health of the codebase in the future. This is directly verified if we make a pull request or otherwise show our work to the community for review.
+
+For the requirement “Testability” we look at other tests that are close in the code or relate to similar kinds of issues. We take note of how they structure their tests and create a new test case relating to our relevant issue. Additionally, we save test logs before and after our issue is solved, to prove that there is a failing test without our patch and there are no failing tests with our patch.
+
+For the requirement “Standardization” we ensure our tests and solution follows the standards described in the project. This is done by looking at other tests that test a similar part of the code, and following their formatting. Additionally we look and study eventual instructions in regards to testing and coding. This is directly verified if we make a pull request or otherwise show our work to the community for review.
+
+## Plan for issue resolution
+To make a reliable and general solution, we first plan to understand where the issue occurs. We will find out where we can implement the fix as close to the root source of the issue as possible. This would mean the fix would apply for both the apply and the plan command, as well as any others that might be affected. To actually solve the issue, we aim to track the flow of terraforms diagnostics tool and pinpoint where in the process we can implement a non-invasive check if sensitive variables are being used. If sensitive variables are not being used, we do nothing. If sensitive variables are being used, we check for relevant variables in the .tfvars file and redact info such that it will not be displayed in error output.
+
 ## Code changes
 
 ### Patch
@@ -296,6 +310,12 @@ The patch is non-breaking, although it doesn't include code to fix the issue tha
 
 To see test logs, check relevant folder in Google Drive.
 
+## UML class diagram and its description
+
+The following UML show the our addition that would resolve the issue at the root. For more info on the flow outside of the UML diagram, check Architectural overview down below. The UML depicts a runtime snapshot when either the `plan` or the `apply` command is run (terraform specific command). Due to high complexity the UML simplifies the events occuring in the `meta_vars.go` file. The non-colored objects in the diagram protrays event that already happens during an `plan` or `apply` command, while the green colored ones shows the added code/checks to resolve the issue. Lastly, the orange objects in the diagram shows the affected objects show the solution be implemented.
+
+![UML_plan_or_apply](UML_diagram.png)
+
 ### Key changes/classes affected
 
 Optional (point 1): Architectural overview.
@@ -340,6 +360,13 @@ The whole Essence Kernel covers three separate parts, Customer, Solution and End
 
 When thrown in a group with engineers, a natural focus revolves around technical problem-solving. However, in a group of humans, communication, group dynamics and trust will always play a part in how well the group performs. The Essence Kernel is a great tool to make sure that the whole team is on the same page. The `being-on-the-same-page` dilemma can otherwise be an issue that, if not managed correctly, might lead to unnecessary friction in the team.
 
+## Where do you put the project that you have chosen in an ecosystem of open-source and closed-source software? Is your project (as it is now) something that has replaced or can replace similar proprietary software? Why (not)? (P+)
+
+Terraform’s license changed in 2023. It previously used the [Mozilla Public License](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) version 2.0, a copyleft license which would categorize it as an open-source project since the license allows for commercial use and distribution. As of 2023 however Terraform is under a [Business Source License](https://www.hashicorp.com/bsl) version 1.1. Modifying and distributing the code is allowed but commercial use is limited to specific conditions set by Terraform. Given that the code restricts other’s from commercial use according to [The Open Source Definition, point 6](https://opensource.org/osd) Terraform is no longer defined as open-source code. The code falls under “source-available”, it is not entirely closed-source and proprietary since it is available and gives some freedoms but it is not open-source. 
+
+Terraform is a relatively young project released in 2014 and we have not found examples of projects or tools that it has replaced. The change from open-source to more restricted source-available has led to some reactions however, such as the [OpenTF manifesto](https://github.com/opentofu/manifesto?tab=readme-ov-file) and later [OpenTofu](https://github.com/opentofu/opentofu), an open-source fork of Terraform that maintains compatibility with Terraform, created after Terraform did not meet the manifesto’s request. Other open-source similar “infrastructure-as-code”(IaC) projects are available such as Ansible and Pulumi and cloud providers also allow IaC in a simplified form with CLI tools; Terraform however extends this with a syntax and state information. 
+All in all, Terraform is probably not on the brink of being replaced currently although other tools could in theory. Tools such as Ansiable and Pulumi have slightly different use cases and factors such as the size of the infrastructure, the engineering structure and experience also matters in the decision on what software tool to use. A fork like OpenTofu is still new and professional settings that use Terraform are probably more keen on using Terraform if they can and the license change does not affect them. That said, IaC is not as complex to replace compared to other tools such as a database backend so if other tools meet the needs and requirements Terraform could one day be replaced by open-source tools.
+A slightly more modern (and complex) alternative to Terraform has arisen with the movement towards cloud-native technology, namely Crossplane is a direct competitor, but only in the cloud-native space. So for larger companies that aleady work with Kubernetes etc. they might go with Crossplane instead of Terraform.
 
 
 Optional (point 6): How would you put your work in context with best software engineering practice?
