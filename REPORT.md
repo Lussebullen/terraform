@@ -122,6 +122,17 @@ To show that there is an issue, tests should be able to be created, and should b
 Title: Follow project instructions regarding code and contributions
 Since Terraform is a large project with many contributors, there are established standards for code writing and testing. To ensure maximum readability of the code as well as the health of the project in the long run, these standards are enforced. In order to contribute to a solution, a requirement of the contribution is thus to follow those standards.
 
+## Plan for testing
+For the requirement “Sensitive information” we implement a test that contains a sensitive variable, which has a syntax error. If the sensitive information is displayed in the error, the requirement is tested. The test compares the string output that we receive when running the test with our own correctly stated string. Since the check for the formatting where the issue can occur occurs when the “plan” or “apply” command is used, we incorporate the tests into the codebase where those commands are tested (internal/command/plan_test.go).
+
+For the requirement “Functionality” we ensure that no tests that passed before our change fail after our change. This ensures that the functionality of the project at large is not affected in a negative way by our change.
+
+For the requirement “Simplicity” we take care to not increase the complexity of the solution in an unnecessary way. This includes when adding tests: the tests should not be overly complicated to run. This ensures the readability of the code and tests and is good for the health of the codebase in the future. This is directly verified if we make a pull request or otherwise show our work to the community for review.
+
+For the requirement “Testability” we look at other tests that are close in the code or relate to similar kinds of issues. We take note of how they structure their tests and create a new test case relating to our relevant issue. Additionally, we save test logs before and after our issue is solved, to prove that there is a failing test without our patch and there are no failing tests with our patch.
+
+For the requirement “Standardization” we ensure our tests and solution follows the standards described in the project. This is done by looking at other tests that test a similar part of the code, and following their formatting. Additionally we look and study eventual instructions in regards to testing and coding. This is directly verified if we make a pull request or otherwise show our work to the community for review.
+
 ## Code changes
 
 ### Patch
