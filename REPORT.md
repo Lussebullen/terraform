@@ -298,6 +298,8 @@ To see test logs, check relevant folder in Google Drive.
 
 ## UML class diagram and its description
 
+The following UML show the our addition that would resolve the issue at the root. For more info on the flow outside of the UML diagram, check Architectural overview down below.
+![UML_plan_or_apply](UML_diagram.png)
 
 ### Key changes/classes affected
 
