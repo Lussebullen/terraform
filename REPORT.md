@@ -331,6 +331,8 @@ After setting the sensitive label in diags, we need to ensure that these diags a
 
 ![RedactSensitiveInfo](redactVariable.png)
 
+Our investigation of the selected issue provided us with valuable information regarding the issue. This information was shared with the terraform community. URL: https://github.com/hashicorp/terraform/issues/31946
+
 ## Overall experience
 
 What are your main take-aways from this project? What did you learn?
