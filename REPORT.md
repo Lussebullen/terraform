@@ -133,6 +133,9 @@ For the requirement “Testability” we look at other tests that are close in t
 
 For the requirement “Standardization” we ensure our tests and solution follows the standards described in the project. This is done by looking at other tests that test a similar part of the code, and following their formatting. Additionally we look and study eventual instructions in regards to testing and coding. This is directly verified if we make a pull request or otherwise show our work to the community for review.
 
+## Plan for issue resolution
+To make a reliable and general solution, we first plan to understand where the issue occurs. We will find out where we can implement the fix as close to the root source of the issue as possible. This would mean the fix would apply for both the apply and the plan command, as well as any others that might be affected. To actually solve the issue, we aim to track the flow of terraforms diagnostics tool and pinpoint where in the process we can implement a non-invasive check if sensitive variables are being used. If sensitive variables are not being used, we do nothing. If sensitive variables are being used, we check for relevant variables in the .tfvars file and redact info such that it will not be displayed in error output.
+
 ## Code changes
 
 ### Patch
