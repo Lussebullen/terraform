@@ -296,12 +296,6 @@ The patch is non-breaking, although it doesn't include code to fix the issue tha
 
 To see test logs, check relevant folder in Google Drive.
 
-## UML class diagram and its description
-
-The following UML show the our addition that would resolve the issue at the root. For more info on the flow outside of the UML diagram, check Architectural overview down below. The UML depicts a runtime snapshot when either the `plan` or the `apply` command is run (terraform specific command). Due to high complexity the UML simplifies the events occuring in the `meta_vars.go` file. The non-colored objects in the diagram protrays event that already happens during an `plan` or `apply` command, while the green colored ones shows the added code/checks to resolve the issue. Lastly, the orange objects in the diagram shows the affected objects show the solution be implemented.
-
-![UML_plan_or_apply](UML_diagram.png)
-
 ### Key changes/classes affected
 
 Optional (point 1): Architectural overview.
